@@ -1,0 +1,27 @@
+# Segredos
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+.venv/
+env/
+ENV/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Banco local / logs
+*.sqlite3
+*.db
+*.log
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
