@@ -3,9 +3,12 @@
 Documentação: https://docs.openaq.org (API v3).
 
 Fluxo:
-    1. Busca a estação (location) mais próxima das coordenadas.
-    2. Lê as medições mais recentes (latest) dos sensores dessa estação.
-    3. Normaliza os poluentes em um dicionário padronizado.
+    1. Busca estações (locations) próximas das coordenadas, ordenadas por distância.
+    2. Para cada estação, monta o mapa sensorsId -> parâmetro (a partir da lista
+       de 'sensors' da própria location).
+    3. Lê as medições mais recentes (/latest) e cruza pelo sensorsId para
+       descobrir qual poluente é cada valor.
+    4. Usa a primeira estação que tiver medições válidas dos poluentes de interesse.
 
 A chave de API é lida de settings.openaq_api_key e enviada no header X-API-Key.
 """
@@ -17,7 +20,9 @@ from app.core.config import settings
 OPENAQ_BASE_URL = "https://api.openaq.org/v3"
 # Raio máximo de busca aceito pela API (25 km).
 RAIO_BUSCA_METROS = 25000
-TIMEOUT_SEGUNDOS = 10.0
+# Quantas estações próximas tentar antes de desistir.
+MAX_ESTACOES = 10
+TIMEOUT_SEGUNDOS = 15.0
 
 # Mapeia os nomes de parâmetros da OpenAQ para as chaves usadas no sistema.
 MAPA_PARAMETROS = {
@@ -65,82 +70,128 @@ class OpenAQService:
         return {"X-API-Key": self.api_key}
 
     def buscar_por_coordenadas(self, lat: float, lon: float) -> DadosQualidadeAr:
-        """Busca a qualidade do ar na estação mais próxima das coordenadas.
+        """Busca a qualidade do ar na estação válida mais próxima das coordenadas.
 
-        Levanta OpenAQError em caso de falha ou ausência de estação.
+        Percorre as estações por ordem de proximidade e usa a primeira que
+        possuir medições recentes dos poluentes de interesse.
+
+        Levanta OpenAQError em caso de falha ou ausência de dados.
         """
         try:
             with httpx.Client(timeout=TIMEOUT_SEGUNDOS) as client:
-                location = self._buscar_estacao_proxima(client, lat, lon)
-                poluentes = self._buscar_medicoes_recentes(client, location["id"])
+                estacoes = self._buscar_estacoes_proximas(client, lat, lon)
+
+                if not estacoes:
+                    raise OpenAQError(
+                        "Nenhuma estação de monitoramento encontrada num raio de "
+                        "25 km desta localização."
+                    )
+
+                for estacao in estacoes:
+                    poluentes = self._buscar_medicoes_recentes(client, estacao)
+                    if poluentes:
+                        cidade = estacao.get("locality") or estacao.get("name")
+                        return DadosQualidadeAr(
+                            cidade=cidade,
+                            poluentes=poluentes,
+                            estacao=estacao.get("name"),
+                        )
         except httpx.TimeoutException:
             raise OpenAQError("A OpenAQ demorou para responder. Tente novamente.")
         except httpx.HTTPError as erro:
             raise OpenAQError(f"Falha ao consultar a OpenAQ: {erro}")
 
-        if not poluentes:
-            raise OpenAQError(
-                "A estação mais próxima não possui medições recentes de poluentes."
-            )
-
-        # Extrai nome da cidade/localidade quando disponível.
-        cidade = location.get("locality") or location.get("name")
-
-        return DadosQualidadeAr(
-            cidade=cidade,
-            poluentes=poluentes,
-            estacao=location.get("name"),
+        # Chegou aqui: havia estações, mas nenhuma com dados recentes dos
+        # poluentes que monitoramos.
+        raise OpenAQError(
+            "As estações próximas não possuem medições recentes dos poluentes "
+            "monitorados (PM2.5, PM10, O3, NO2, CO). Tente novamente mais tarde."
         )
 
-    def _buscar_estacao_proxima(
+    def _buscar_estacoes_proximas(
         self, client: httpx.Client, lat: float, lon: float
-    ) -> dict:
-        """Retorna a estação (location) mais próxima das coordenadas."""
+    ) -> list[dict]:
+        """Retorna estações próximas, ordenadas por distância (mais perto primeiro)."""
         url = f"{OPENAQ_BASE_URL}/locations"
         params = {
             "coordinates": f"{lat},{lon}",
             "radius": RAIO_BUSCA_METROS,
-            "limit": 1,
+            "limit": MAX_ESTACOES,
+            "order_by": "distance",
+            "sort_order": "asc",
         }
         resp = client.get(url, params=params, headers=self._headers())
 
         if resp.status_code == 401:
-            raise OpenAQError("Chave da OpenAQ inválida (401). Verifique OPENAQ_API_KEY.")
+            raise OpenAQError(
+                "Chave da OpenAQ inválida (401). Verifique OPENAQ_API_KEY."
+            )
         resp.raise_for_status()
 
-        resultados = resp.json().get("results", [])
-        if not resultados:
-            raise OpenAQError(
-                "Nenhuma estação de monitoramento encontrada num raio de 25 km "
-                "desta localização."
-            )
-        return resultados[0]
+        return resp.json().get("results", [])
+
+    def _mapa_sensores(self, estacao: dict) -> dict[int, str]:
+        """Monta o mapa {sensorsId: nome_parametro} a partir da location.
+
+        Cada estação traz uma lista 'sensors', e cada sensor informa qual
+        parâmetro (pm25, o3, ...) ele mede.
+        """
+        mapa: dict[int, str] = {}
+        for sensor in estacao.get("sensors") or []:
+            sensor_id = sensor.get("id")
+            parametro = sensor.get("parameter") or {}
+            nome = parametro.get("name")
+            if sensor_id is not None and isinstance(nome, str):
+                mapa[sensor_id] = nome.lower()
+        return mapa
 
     def _buscar_medicoes_recentes(
-        self, client: httpx.Client, location_id: int
+        self, client: httpx.Client, estacao: dict
     ) -> dict[str, float]:
-        """Retorna os poluentes mais recentes de uma estação, já normalizados."""
+        """Retorna os poluentes mais recentes de uma estação, já normalizados.
+
+        Cruza os valores do endpoint /latest com o parâmetro de cada sensor
+        (via sensorsId). Como fallback, tenta ler o parâmetro embutido no
+        próprio registro, caso a API o forneça.
+        """
+        location_id = estacao.get("id")
+        if location_id is None:
+            return {}
+
+        mapa_sensores = self._mapa_sensores(estacao)
+
         url = f"{OPENAQ_BASE_URL}/locations/{location_id}/latest"
         resp = client.get(url, headers=self._headers())
         resp.raise_for_status()
 
         poluentes: dict[str, float] = {}
         for medicao in resp.json().get("results", []):
-            # Cada resultado traz o sensor e seu valor mais recente.
-            parametro = self._extrair_parametro(medicao)
             valor = medicao.get("value")
-            if parametro in MAPA_PARAMETROS and valor is not None:
+            if valor is None:
+                continue
+
+            # 1) tenta descobrir o parâmetro pelo sensorsId (caminho principal)
+            parametro = None
+            sensor_id = medicao.get("sensorsId")
+            if sensor_id is not None:
+                parametro = mapa_sensores.get(sensor_id)
+
+            # 2) fallback: parâmetro embutido no próprio registro
+            if parametro is None:
+                parametro = self._extrair_parametro(medicao)
+
+            if parametro in MAPA_PARAMETROS:
                 chave = MAPA_PARAMETROS[parametro]
                 # Mantém o primeiro valor por poluente (o mais recente).
                 poluentes.setdefault(chave, float(valor))
+
         return poluentes
 
     @staticmethod
     def _extrair_parametro(medicao: dict) -> str | None:
-        """Extrai o nome do parâmetro (ex.: 'pm25') de um registro latest.
+        """Extrai o nome do parâmetro embutido num registro, se existir.
 
-        A estrutura pode variar entre 'sensor.parameter.name' e 'parameter.name',
-        então tratamos ambos os formatos de forma defensiva.
+        Trata os formatos 'sensor.parameter.name' e 'parameter.name'.
         """
         sensor = medicao.get("sensor") or {}
         parametro = sensor.get("parameter") or medicao.get("parameter") or {}
