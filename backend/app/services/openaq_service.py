@@ -98,6 +98,20 @@ class OpenAQService:
                         )
         except httpx.TimeoutException:
             raise OpenAQError("A OpenAQ demorou para responder. Tente novamente.")
+        except httpx.HTTPStatusError as erro:
+            # Repassa o detalhe do corpo de erro da OpenAQ, quando houver,
+            # para facilitar a identificação do problema.
+            detalhe = ""
+            try:
+                corpo = erro.response.json()
+                detalhe = corpo.get("detail") or corpo.get("message") or ""
+            except Exception:
+                detalhe = erro.response.text[:200] if erro.response is not None else ""
+            sufixo = f" Detalhe: {detalhe}" if detalhe else ""
+            raise OpenAQError(
+                f"Falha ao consultar a OpenAQ (HTTP {erro.response.status_code})."
+                f"{sufixo}"
+            )
         except httpx.HTTPError as erro:
             raise OpenAQError(f"Falha ao consultar a OpenAQ: {erro}")
 
@@ -113,12 +127,13 @@ class OpenAQService:
     ) -> list[dict]:
         """Retorna estações próximas, ordenadas por distância (mais perto primeiro)."""
         url = f"{OPENAQ_BASE_URL}/locations"
+        # Ao informar coordinates + radius, a API já retorna as estações
+        # ordenadas por proximidade. Não usamos order_by=distance porque esse
+        # endpoint não aceita esse valor (retorna HTTP 422).
         params = {
             "coordinates": f"{lat},{lon}",
             "radius": RAIO_BUSCA_METROS,
             "limit": MAX_ESTACOES,
-            "order_by": "distance",
-            "sort_order": "asc",
         }
         resp = client.get(url, params=params, headers=self._headers())
 
