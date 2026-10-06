@@ -2,23 +2,41 @@
 
 from datetime import datetime, timedelta, timezone
 
+import bcrypt
 from jose import JWTError, jwt
-from passlib.context import CryptContext
 
 from app.core.config import settings
 
-# Contexto de hashing de senhas usando bcrypt.
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+# O algoritmo bcrypt considera apenas os primeiros 72 bytes da senha.
+_BCRYPT_MAX_BYTES = 72
+
+
+def _preparar_senha(senha: str) -> bytes:
+    """Converte a senha para bytes e trunca em 72 bytes (limite do bcrypt).
+
+    O truncamento é feito respeitando os limites de caracteres UTF-8, para não
+    quebrar um caractere multibyte ao meio.
+    """
+    senha_bytes = senha.encode("utf-8")
+    if len(senha_bytes) <= _BCRYPT_MAX_BYTES:
+        return senha_bytes
+    # Trunca ignorando bytes de continuação incompletos no final.
+    return senha_bytes[:_BCRYPT_MAX_BYTES]
 
 
 def hash_senha(senha: str) -> str:
-    """Gera o hash seguro de uma senha em texto puro."""
-    return pwd_context.hash(senha)
+    """Gera o hash seguro de uma senha em texto puro usando bcrypt."""
+    hashed = bcrypt.hashpw(_preparar_senha(senha), bcrypt.gensalt())
+    return hashed.decode("utf-8")
 
 
 def verificar_senha(senha: str, senha_hash: str) -> bool:
     """Compara uma senha em texto puro com o hash armazenado."""
-    return pwd_context.verify(senha, senha_hash)
+    try:
+        return bcrypt.checkpw(_preparar_senha(senha), senha_hash.encode("utf-8"))
+    except ValueError:
+        # Hash malformado no banco → considera inválido em vez de quebrar.
+        return False
 
 
 def criar_token_acesso(subject: str | int) -> str:
