@@ -1,0 +1,55 @@
+"""Schemas Pydantic para qualidade do ar e histórico de medições."""
+
+from datetime import datetime
+
+from pydantic import BaseModel, ConfigDict, Field
+
+
+class Poluentes(BaseModel):
+    """Concentrações de poluentes (µg/m³). Campos ausentes vêm como None."""
+
+    pm25: float | None = None
+    pm10: float | None = None
+    o3: float | None = None
+    no2: float | None = None
+    co: float | None = None
+
+
+class QualidadeArResponse(BaseModel):
+    """Resposta do endpoint de qualidade do ar."""
+
+    latitude: float
+    longitude: float
+    cidade: str | None = None
+    estacao: str | None = None
+    poluentes: Poluentes
+    indice_geral: int | None = None
+    categoria: str | None = None
+    poluente_critico: str | None = None
+    coletado_em: datetime
+
+
+class MedicaoOut(BaseModel):
+    """Item do histórico de medições retornado pela API."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    latitude: float
+    longitude: float
+    cidade: str | None
+    pm25: float | None
+    pm10: float | None
+    o3: float | None
+    no2: float | None
+    co: float | None
+    indice_geral: int | None
+    categoria: str | None
+    coletado_em: datetime
+
+
+class Coordenadas(BaseModel):
+    """Validação das coordenadas recebidas na query."""
+
+    lat: float = Field(..., ge=-90, le=90, description="Latitude (-90 a 90)")
+    lon: float = Field(..., ge=-180, le=180, description="Longitude (-180 a 180)")

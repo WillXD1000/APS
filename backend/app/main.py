@@ -5,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 # Importa os modelos para que o SQLAlchemy conheça todas as tabelas.
 from app import models  # noqa: F401
-from app.api.routes import auth
+from app.api.routes import air_quality, auth
 from app.core.config import settings
 from app.core.database import Base, engine
 
@@ -49,3 +49,4 @@ def health_check() -> dict:
 
 # Registra as rotas da aplicação.
 app.include_router(auth.router)
+app.include_router(air_quality.router)
