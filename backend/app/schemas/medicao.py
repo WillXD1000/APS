@@ -26,6 +26,9 @@ class QualidadeArResponse(BaseModel):
     indice_geral: int | None = None
     categoria: str | None = None
     poluente_critico: str | None = None
+    # Textos gerados pela IA (ou fallback local) — Etapa 3.
+    interpretacao: str | None = None
+    recomendacao: str | None = None
     coletado_em: datetime
 
 

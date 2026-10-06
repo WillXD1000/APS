@@ -30,3 +30,13 @@ class MedicaoRepository:
             .limit(limite)
         )
         return list(self.db.execute(stmt).scalars().all())
+
+    def ultima_por_usuario(self, usuario_id: int) -> Medicao | None:
+        """Retorna a medição mais recente de um usuário, ou None."""
+        stmt = (
+            select(Medicao)
+            .where(Medicao.usuario_id == usuario_id)
+            .order_by(Medicao.coletado_em.desc())
+            .limit(1)
+        )
+        return self.db.execute(stmt).scalar_one_or_none()

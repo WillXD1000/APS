@@ -25,7 +25,12 @@ def consultar_qualidade_ar(
     """
     service = AirQualityService(db)
     try:
-        return service.consultar(lat=lat, lon=lon, usuario_id=usuario.id)
+        return service.consultar(
+            lat=lat,
+            lon=lon,
+            usuario_id=usuario.id,
+            perfil_saude=usuario.perfil_saude,
+        )
     except OpenAQError as erro:
         # 502: falha ao obter dados de um serviço externo.
         raise HTTPException(
