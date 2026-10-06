@@ -1,6 +1,9 @@
 """Rotas de autenticação: cadastro, login e dados do usuário logado."""
 
+from typing import Annotated
+
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_usuario_atual
@@ -26,10 +29,32 @@ def registrar(dados: UsuarioCreate, db: Session = Depends(get_db)) -> UsuarioOut
 
 @router.post("/login", response_model=Token)
 def login(dados: UsuarioLogin, db: Session = Depends(get_db)) -> Token:
-    """Autentica o usuário e retorna um token de acesso (JWT)."""
+    """Autentica o usuário via JSON e retorna um token de acesso (JWT).
+
+    Usada pelo aplicativo mobile. Corpo: {"email": "...", "senha": "..."}.
+    """
     service = AuthService(db)
     try:
         return service.login(dados)
+    except AuthError as erro:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail=erro.mensagem
+        )
+
+
+@router.post("/token", response_model=Token)
+def login_oauth2(
+    form: Annotated[OAuth2PasswordRequestForm, Depends()],
+    db: Session = Depends(get_db),
+) -> Token:
+    """Login no padrão OAuth2 (formulário), usado pelo botão 'Authorize' do Swagger.
+
+    O campo 'username' deve conter o e-mail do usuário, e 'password' a senha.
+    Reaproveita a mesma lógica do /auth/login.
+    """
+    service = AuthService(db)
+    try:
+        return service.login(UsuarioLogin(email=form.username, senha=form.password))
     except AuthError as erro:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail=erro.mensagem
