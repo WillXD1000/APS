@@ -50,13 +50,23 @@ O projeto demonstra conceitos de Sistemas Distribuídos:
 
 ---
 
-## 📂 Documentação
+## 📂 Estrutura do repositório
+
+| Pasta | Conteúdo |
+|---|---|
+| [`backend/`](backend/) | API REST (FastAPI + PostgreSQL + OpenAQ + Gemini) |
+| [`mobile/`](mobile/) | Aplicativo React Native (Expo) |
+| [`docs/`](docs/) | Documentação do projeto |
+
+## 📄 Documentação
 
 | Documento | Conteúdo |
 |---|---|
 | [`docs/01-proposta.md`](docs/01-proposta.md) | Proposta do projeto para submissão ao coordenador |
 | [`docs/02-arquitetura.md`](docs/02-arquitetura.md) | Arquitetura do sistema distribuído |
 | [`docs/03-plano-desenvolvimento.md`](docs/03-plano-desenvolvimento.md) | Plano de desenvolvimento em etapas |
+| [`backend/README.md`](backend/README.md) | Como rodar o backend |
+| [`mobile/README.md`](mobile/README.md) | Como rodar o app mobile |
 
 ---
 
@@ -71,4 +81,10 @@ O projeto demonstra conceitos de Sistemas Distribuídos:
 
 ## 📅 Status
 
-🟡 **Em planejamento** — proposta a ser submetida ao coordenador auxiliar.
+🟢 **Em desenvolvimento** — backend completo (auth, OpenAQ, Gemini) e app mobile (login, consulta, chatbot, histórico, perfil).
+
+### Progresso
+- ✅ Etapa 1 — Backend base (autenticação JWT)
+- ✅ Etapa 2 — Qualidade do ar (OpenAQ + IQAr)
+- ✅ Etapa 3 — IA (Gemini: interpretação, recomendação, chatbot)
+- ✅ Etapa 4 — App mobile (React Native)
