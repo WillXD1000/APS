@@ -5,11 +5,6 @@
     "version": "0.1.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
-    "newArchEnabled": true,
-    "splash": {
-      "resizeMode": "contain",
-      "backgroundColor": "#2E7D5B"
-    },
     "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true
