@@ -6,6 +6,7 @@ API REST do assistente inteligente de qualidade do ar, construída com **FastAPI
 > - ✅ **Etapa 1:** base do backend com autenticação (cadastro/login via JWT) e banco de dados.
 > - ✅ **Etapa 2:** integração com a **OpenAQ** (consulta de qualidade do ar + cálculo do IQAr + histórico).
 > - ✅ **Etapa 3:** integração com o **Gemini** (interpretação por IA, recomendação personalizada e chatbot ambiental).
+> - ✅ **Etapa 5:** alertas por perfil de saúde, relatório por dia e troca do perfil de saúde.
 
 ---
 
@@ -97,6 +98,9 @@ Com o servidor rodando, acesse:
 | `GET` | `/history?limite=` | Histórico de medições do usuário | ✅ (Bearer) |
 | `POST` | `/chat` | Chatbot ambiental (pergunta → resposta da IA) | ✅ (Bearer) |
 | `GET` | `/chat/history?limite=` | Histórico de conversas do usuário | ✅ (Bearer) |
+| `PUT` | `/auth/me/perfil` | Altera o perfil de saúde do usuário | ✅ (Bearer) |
+| `GET` | `/alerts?limite=` | Alertas do usuário, mais recentes primeiro | ✅ (Bearer) |
+| `GET` | `/report?dias=` | Relatório por dia: índice médio, máximo e total (1 a 31 dias) | ✅ (Bearer) |
 
 ### Exemplo: cadastro
 
@@ -168,6 +172,50 @@ Resposta (exemplo):
   "resposta": "Com a qualidade do ar atual classificada como Boa na sua região, é um ótimo dia para atividades ao ar livre com a criança..."
 }
 ```
+
+### Alertas
+
+A cada consulta em `/air-quality`, o backend avalia se o ar exige um alerta para o
+perfil de saúde do usuário:
+
+| Perfil | Alerta a partir de |
+|---|---|
+| `asmatico`, `idoso`, `crianca` | Moderada |
+| `geral`, `atleta` | Ruim |
+
+O nível é `perigo` para Muito Ruim e Péssima, e `atencao` nos demais casos. A resposta
+de `/air-quality` traz o campo `alerta` (`null` quando não há alerta):
+
+```json
+"alerta": {
+  "nivel": "atencao",
+  "mensagem": "Qualidade do ar moderada em Diadema. Como seu perfil é sensível à poluição, evite esforço físico prolongado ao ar livre.",
+  "novo": true
+}
+```
+
+`novo: true` indica que o alerta acabou de ser gravado em `/alerts`. Para não repetir o
+mesmo aviso, um alerta do mesmo nível só é gravado de novo depois de 3 horas.
+
+### Exemplo: alterar o perfil de saúde
+
+```bash
+curl -X PUT http://localhost:8000/auth/me/perfil \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <SEU_TOKEN>" \
+  -d '{"perfil_saude":"asmatico"}'
+```
+
+### Exemplo: relatório dos últimos 7 dias
+
+```bash
+curl "http://localhost:8000/report?dias=7" \
+  -H "Authorization: Bearer <SEU_TOKEN>"
+```
+
+Cada item de `itens` traz `data`, `total`, `indice_medio`, `indice_maximo` e
+`categoria`. Dias sem consulta aparecem com `total: 0`. As consultas são agrupadas
+pelo horário de Brasília (UTC−3).
 
 > ⚠️ **Importante:**
 > - O endpoint `/air-quality` precisa da `OPENAQ_API_KEY` no `.env`. Sem ela (ou chave

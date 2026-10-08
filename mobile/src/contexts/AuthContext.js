@@ -53,9 +53,17 @@ export function AuthProvider({ children }) {
     setUsuario(null);
   }
 
+  // Altera o perfil de saúde no backend e atualiza a sessão salva.
+  async function atualizarPerfil(perfilSaude) {
+    const atualizado = await authApi.atualizarPerfil(perfilSaude);
+    await AsyncStorage.setItem(USER_KEY, JSON.stringify(atualizado));
+    setUsuario(atualizado);
+    return atualizado;
+  }
+
   return (
     <AuthContext.Provider
-      value={{ usuario, carregando, entrar, cadastrar, sair }}
+      value={{ usuario, carregando, entrar, cadastrar, sair, atualizarPerfil }}
     >
       {children}
     </AuthContext.Provider>

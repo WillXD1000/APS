@@ -5,26 +5,17 @@ import {
   ActivityIndicator,
   Alert,
   KeyboardAvoidingView,
-  Platform,
   ScrollView,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
-  View,
 } from "react-native";
 
+import HealthProfilePicker from "../components/HealthProfilePicker";
 import { useAuth } from "../contexts/AuthContext";
 import { extrairErro } from "../api/client";
 import { COLORS } from "../config/theme";
-
-const PERFIS = [
-  { valor: "geral", rotulo: "Geral" },
-  { valor: "asmatico", rotulo: "Asmático" },
-  { valor: "idoso", rotulo: "Idoso" },
-  { valor: "atleta", rotulo: "Atleta" },
-  { valor: "crianca", rotulo: "Criança" },
-];
 
 export default function RegisterScreen({ navigation }) {
   const { cadastrar } = useAuth();
@@ -56,9 +47,12 @@ export default function RegisterScreen({ navigation }) {
   return (
     <KeyboardAvoidingView
       style={styles.container}
-      behavior={Platform.OS === "ios" ? "padding" : undefined}
+      behavior="padding"
     >
-      <ScrollView contentContainerStyle={styles.scroll}>
+      <ScrollView
+        contentContainerStyle={styles.scroll}
+        keyboardShouldPersistTaps="handled"
+      >
         <Text style={styles.titulo}>Criar conta</Text>
 
         <Text style={styles.label}>Nome</Text>
@@ -89,24 +83,10 @@ export default function RegisterScreen({ navigation }) {
         />
 
         <Text style={styles.label}>Perfil de saúde</Text>
-        <View style={styles.perfis}>
-          {PERFIS.map((p) => {
-            const ativo = perfil === p.valor;
-            return (
-              <TouchableOpacity
-                key={p.valor}
-                style={[styles.perfilChip, ativo && styles.perfilChipAtivo]}
-                onPress={() => setPerfil(p.valor)}
-              >
-                <Text
-                  style={[styles.perfilTexto, ativo && styles.perfilTextoAtivo]}
-                >
-                  {p.rotulo}
-                </Text>
-              </TouchableOpacity>
-            );
-          })}
-        </View>
+        <Text style={styles.ajuda}>
+          Escolha o que melhor descreve você. Dá para mudar depois na aba Perfil.
+        </Text>
+        <HealthProfilePicker valor={perfil} onChange={setPerfil} />
 
         <TouchableOpacity
           style={styles.botao}
@@ -153,21 +133,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginTop: 4,
   },
-  perfis: { flexDirection: "row", flexWrap: "wrap", gap: 8, marginTop: 8 },
-  perfilChip: {
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 999,
-    backgroundColor: COLORS.surface,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-  },
-  perfilChipAtivo: {
-    backgroundColor: COLORS.primary,
-    borderColor: COLORS.primary,
-  },
-  perfilTexto: { color: COLORS.text, fontWeight: "600" },
-  perfilTextoAtivo: { color: COLORS.white },
+  ajuda: { fontSize: 13, color: COLORS.textMuted, marginTop: 2 },
   botao: {
     backgroundColor: COLORS.primary,
     borderRadius: 12,

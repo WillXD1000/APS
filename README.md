@@ -88,3 +88,4 @@ O projeto demonstra conceitos de Sistemas Distribuídos:
 - ✅ Etapa 2 — Qualidade do ar (OpenAQ + IQAr)
 - ✅ Etapa 3 — IA (Gemini: interpretação, recomendação, chatbot)
 - ✅ Etapa 4 — App mobile (React Native)
+- ✅ Etapa 5 — Alertas por perfil de saúde, relatório com gráfico e troca do perfil

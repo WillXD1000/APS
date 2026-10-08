@@ -38,3 +38,10 @@ class UsuarioRepository:
         self.db.commit()
         self.db.refresh(usuario)
         return usuario
+
+    def atualizar_perfil(self, usuario: Usuario, perfil_saude: str) -> Usuario:
+        """Altera o perfil de saúde de um usuário e persiste."""
+        usuario.perfil_saude = perfil_saude
+        self.db.commit()
+        self.db.refresh(usuario)
+        return usuario

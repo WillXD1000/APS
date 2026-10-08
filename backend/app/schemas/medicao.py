@@ -1,8 +1,10 @@
-"""Schemas Pydantic para qualidade do ar e histórico de medições."""
+"""Schemas Pydantic para qualidade do ar, histórico e relatório."""
 
-from datetime import datetime
+from datetime import date, datetime
 
 from pydantic import BaseModel, ConfigDict, Field
+
+from app.schemas.alerta import AlertaAtual
 
 
 class Poluentes(BaseModel):
@@ -29,7 +31,30 @@ class QualidadeArResponse(BaseModel):
     # Textos gerados pela IA (ou fallback local) — Etapa 3.
     interpretacao: str | None = None
     recomendacao: str | None = None
+    # Alerta para o perfil do usuário, quando o ar exige atenção — Etapa 5.
+    alerta: AlertaAtual | None = None
     coletado_em: datetime
+
+
+class RelatorioDia(BaseModel):
+    """Resumo das consultas de um dia (dias sem consulta vêm com total 0)."""
+
+    data: date
+    total: int
+    indice_medio: int | None = None
+    indice_maximo: int | None = None
+    categoria: str | None = None  # categoria do índice médio
+
+
+class RelatorioResponse(BaseModel):
+    """Relatório agregado por dia, usado no gráfico do app."""
+
+    dias: int
+    inicio: date
+    fim: date
+    total_consultas: int
+    indice_medio_periodo: int | None = None
+    itens: list[RelatorioDia]
 
 
 class MedicaoOut(BaseModel):

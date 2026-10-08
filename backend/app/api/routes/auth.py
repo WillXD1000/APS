@@ -9,7 +9,13 @@ from sqlalchemy.orm import Session
 from app.api.deps import get_usuario_atual
 from app.core.database import get_db
 from app.models.usuario import Usuario
-from app.schemas.usuario import Token, UsuarioCreate, UsuarioLogin, UsuarioOut
+from app.schemas.usuario import (
+    PerfilUpdate,
+    Token,
+    UsuarioCreate,
+    UsuarioLogin,
+    UsuarioOut,
+)
 from app.services.auth_service import AuthError, AuthService
 
 router = APIRouter(prefix="/auth", tags=["Autenticação"])
@@ -65,3 +71,16 @@ def login_oauth2(
 def meus_dados(usuario: Usuario = Depends(get_usuario_atual)) -> UsuarioOut:
     """Retorna os dados do usuário autenticado (valida o token)."""
     return UsuarioOut.model_validate(usuario)
+
+
+@router.put("/me/perfil", response_model=UsuarioOut)
+def atualizar_perfil(
+    dados: PerfilUpdate,
+    db: Session = Depends(get_db),
+    usuario: Usuario = Depends(get_usuario_atual),
+) -> UsuarioOut:
+    """Altera o perfil de saúde do usuário logado.
+
+    Corpo: {"perfil_saude": "geral" | "asmatico" | "idoso" | "atleta" | "crianca"}.
+    """
+    return AuthService(db).atualizar_perfil(usuario, dados.perfil_saude)

@@ -44,6 +44,12 @@ class UsuarioOut(BaseModel):
     criado_em: datetime
 
 
+class PerfilUpdate(BaseModel):
+    """Dados para alterar o perfil de saúde do usuário logado."""
+
+    perfil_saude: PerfilSaude
+
+
 class Token(BaseModel):
     """Resposta do login contendo o token de acesso."""
 

@@ -5,7 +5,13 @@ from sqlalchemy.orm import Session
 from app.core.security import criar_token_acesso, hash_senha, verificar_senha
 from app.models.usuario import Usuario
 from app.repositories.usuario_repository import UsuarioRepository
-from app.schemas.usuario import Token, UsuarioCreate, UsuarioLogin, UsuarioOut
+from app.schemas.usuario import (
+    PerfilSaude,
+    Token,
+    UsuarioCreate,
+    UsuarioLogin,
+    UsuarioOut,
+)
 
 
 class AuthError(Exception):
@@ -50,3 +56,8 @@ class AuthService:
     def buscar_usuario(self, usuario_id: int) -> Usuario | None:
         """Busca um usuário pelo id (usado pela dependência de token)."""
         return self.repo.buscar_por_id(usuario_id)
+
+    def atualizar_perfil(self, usuario: Usuario, perfil: PerfilSaude) -> UsuarioOut:
+        """Altera o perfil de saúde (afeta recomendações e alertas seguintes)."""
+        atualizado = self.repo.atualizar_perfil(usuario, perfil.value)
+        return UsuarioOut.model_validate(atualizado)

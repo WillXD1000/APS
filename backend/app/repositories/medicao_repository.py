@@ -31,6 +31,15 @@ class MedicaoRepository:
         )
         return list(self.db.execute(stmt).scalars().all())
 
+    def listar_desde(self, usuario_id: int, desde) -> list[Medicao]:
+        """Lista as medições do usuário a partir de 'desde' (datetime)."""
+        stmt = (
+            select(Medicao)
+            .where(Medicao.usuario_id == usuario_id, Medicao.coletado_em >= desde)
+            .order_by(Medicao.coletado_em.asc())
+        )
+        return list(self.db.execute(stmt).scalars().all())
+
     def ultima_por_usuario(self, usuario_id: int) -> Medicao | None:
         """Retorna a medição mais recente de um usuário, ou None."""
         stmt = (

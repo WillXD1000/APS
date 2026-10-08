@@ -70,12 +70,15 @@ e escaneie o QR Code (o celular e o PC precisam estar na **mesma rede Wi-Fi**).
 
 | Aba | Descrição |
 |---|---|
-| **Início** | Seleciona a cidade e consulta a qualidade do ar + interpretação da IA |
+| **Início** | Seleciona a cidade e consulta a qualidade do ar + interpretação da IA. Mostra um banner de alerta quando o ar exige atenção para o seu perfil, e um popup quando o alerta é novo |
 | **Chat** | Chatbot ambiental (pergunte sobre o ar) |
-| **Histórico** | Lista das consultas anteriores |
-| **Perfil** | Dados do usuário e logout |
+| **Histórico** | Gráfico do índice médio dos últimos 7 dias, alertas recentes e lista das consultas |
+| **Perfil** | Dados do usuário, troca do perfil de saúde (com descrição de cada um) e logout |
 
-Antes de logar: telas de **Login** e **Cadastro**.
+Antes de logar: telas de **Login** e **Cadastro** (com a escolha do perfil de saúde).
+
+> Os alertas aparecem **dentro do app**. Notificações push com o app fechado não
+> funcionam no Expo Go para Android desde o SDK 53: exigiriam um development build.
 
 ---
 
@@ -89,8 +92,9 @@ mobile/
 ├── assets/                 # ícones e favicon
 ├── src/
 │   ├── api/                # chamadas ao backend (axios)
-│   ├── components/         # AirQualityCard, CitySelector
-│   ├── config/             # cidades (coord. fixas) e tema/cores
+│   ├── components/         # AirQualityCard, CitySelector, AlertBanner,
+│   │                       # IndexChart, HealthProfilePicker
+│   ├── config/             # cidades, perfis de saúde e tema/cores
 │   ├── contexts/           # AuthContext (sessão)
 │   ├── navigation/         # abas + fluxo de auth
 │   └── screens/            # telas

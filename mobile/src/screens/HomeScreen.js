@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import {
   ActivityIndicator,
+  Alert,
   RefreshControl,
   ScrollView,
   StyleSheet,
@@ -12,6 +13,7 @@ import {
 } from "react-native";
 
 import AirQualityCard from "../components/AirQualityCard";
+import AlertBanner, { tituloDoAlerta } from "../components/AlertBanner";
 import CitySelector from "../components/CitySelector";
 import { consultarQualidadeAr } from "../api/airQuality";
 import { extrairErro } from "../api/client";
@@ -33,6 +35,10 @@ export default function HomeScreen() {
     try {
       const resposta = await consultarQualidadeAr(alvo.lat, alvo.lon);
       setDados(resposta);
+      // Popup apenas para alertas novos (o banner aparece sempre).
+      if (resposta.alerta?.novo) {
+        Alert.alert(tituloDoAlerta(resposta.alerta.nivel), resposta.alerta.mensagem);
+      }
     } catch (error) {
       setErro(extrairErro(error));
       setDados(null);
@@ -77,6 +83,8 @@ export default function HomeScreen() {
           <Text style={styles.erroTexto}>{erro}</Text>
         </View>
       ) : null}
+
+      {dados?.alerta ? <AlertBanner alerta={dados.alerta} /> : null}
 
       {dados ? <AirQualityCard dados={dados} /> : null}
 
