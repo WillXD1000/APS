@@ -10,8 +10,9 @@ from app.models.usuario import Usuario
 from app.services.auth_service import AuthService
 
 # Define que o token vem no header Authorization: Bearer <token>.
-# tokenUrl aponta para a rota de login (usada pela documentação Swagger).
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
+# tokenUrl aponta para a rota OAuth2 (/auth/token), usada pelo botão
+# "Authorize" do Swagger para obter o token automaticamente.
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
 
 
 def get_usuario_atual(
