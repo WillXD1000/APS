@@ -52,6 +52,7 @@ Edite o `.env` e ajuste principalmente:
 - `GEMINI_API_KEY` → **(Etapa 3)** chave gratuita do Gemini. Gere em
   https://aistudio.google.com (botão "Get API key"). Sem ela, o app continua
   funcionando com interpretações locais (fallback), mas o chatbot fica limitado.
+- `GEMINI_MODEL` → modelo do Gemini (padrão `gemini-3.5-flash-lite`). Opcional.
 
 ```bash
 python -c "import secrets; print(secrets.token_hex(32))"
@@ -226,6 +227,25 @@ pelo horário de Brasília (UTC−3).
 >   locais (fallback) — ou seja, **não quebra**.
 > - O `/chat` depende mais fortemente do Gemini: sem a chave, retorna uma mensagem
 >   avisando que o assistente não está configurado.
+
+### Cota gratuita do Gemini
+
+A cota gratuita é **por modelo e por projeto**, contada por dia. No `gemini-2.5-flash`,
+por exemplo, o limite medido foi de 20 requisições por dia. Por isso:
+
+- **Cache:** a interpretação de cada combinação de local, categoria e perfil é
+  reaproveitada por 30 minutos. Consultas repetidas na tela Início não gastam cota.
+  O cache fica na memória do processo e é zerado quando o backend reinicia.
+- **Erros visíveis:** quando o Gemini falha, o terminal do backend mostra uma linha
+  `Falha ao chamar o Gemini (modelo=..., motivo=...)`. O chat explica o motivo:
+  limite atingido (429), modelo indisponível (404) ou chave inválida (400/401/403).
+- **Se a cota acabar:** espere o dia virar, troque o `GEMINI_MODEL` no `.env` por outro
+  modelo da sua chave (cada um tem cota própria) ou gere uma chave em outro projeto do
+  AI Studio. Para listar os modelos da sua chave:
+
+```bash
+python -c "from app.core.config import settings; from google import genai; c = genai.Client(api_key=settings.gemini_api_key); print([m.name for m in c.models.list() if 'flash' in m.name])"
+```
 
 ---
 
