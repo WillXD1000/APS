@@ -77,7 +77,8 @@ e escaneie o QR Code (o celular e o PC precisam estar na **mesma rede Wi-Fi**).
 - **Privacidade:** a latitude e a longitude são arredondadas para **2 casas decimais**
   (cerca de 1 km) antes de irem para o backend, que grava esses valores no histórico.
   O resultado não muda, porque o raio de busca é de 25 km. O nome do lugar
-  ("Vila Mariana, São Paulo") é obtido no próprio aparelho.
+  ("Vila Mariana, São Paulo") vem do serviço de geocodificação do sistema
+  operacional do celular, que usa a posição precisa; essa posição não vai ao backend.
 - **Emulador Android:** a localização padrão é na Califórnia. Para simular outro
   lugar, use os controles do emulador (`...` → **Location**) e informe a latitude e
   a longitude, por exemplo `-23.55` e `-46.63` para São Paulo.

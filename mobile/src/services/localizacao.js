@@ -3,7 +3,8 @@
 // Privacidade: as coordenadas enviadas ao backend são arredondadas para 2 casas
 // decimais (cerca de 1 km). Isso não altera o resultado, porque a estação é
 // buscada num raio de 25 km, e evita gravar no histórico a posição exata do
-// usuário. O nome do lugar é obtido no próprio aparelho, com a posição precisa.
+// usuário. O nome do lugar vem do serviço de geocodificação do sistema
+// operacional (que usa a posição precisa); essa posição não vai ao backend.
 
 import * as Location from "expo-location";
 import { Linking } from "react-native";

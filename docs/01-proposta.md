@@ -113,8 +113,9 @@ Um aplicativo funcional, demonstrável ao vivo, capaz de:
 
 | Nome | RA |
 |---|---|
-| _(preencher)_ | |
-| _(preencher)_ | |
+| Gustavo Teixeira de Lima | G873270 |
+| Northon Dias Conceição | R022FD7 |
+| Willyam Oliveira de Lima | R022FF3 |
 
 ---
 

@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 520" width="960" height="520" font-family="Arial, Helvetica, sans-serif">
+  <defs>
+    <marker id="seta" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#344054"/>
+    </marker>
+  </defs>
+  <rect width="960" height="520" fill="#ffffff"/>
+
+  <!-- Aplicativo -->
+  <rect x="30" y="185" width="200" height="150" rx="14" fill="#EEF7F2" stroke="#2E7D5B" stroke-width="2"/>
+  <text x="130" y="222" text-anchor="middle" font-size="18" font-weight="bold" fill="#1B5E3F">Aplicativo móvel</text>
+  <text x="130" y="248" text-anchor="middle" font-size="14" fill="#344054">React Native + Expo</text>
+  <text x="130" y="276" text-anchor="middle" font-size="13" fill="#667085">Telas e navegação</text>
+  <text x="130" y="296" text-anchor="middle" font-size="13" fill="#667085">Localização (GPS)</text>
+  <text x="130" y="316" text-anchor="middle" font-size="13" fill="#667085">Sessão (token JWT)</text>
+
+  <!-- Servidor -->
+  <rect x="340" y="140" width="260" height="240" rx="14" fill="#EAF1FB" stroke="#1F5FA8" stroke-width="2"/>
+  <text x="470" y="176" text-anchor="middle" font-size="18" font-weight="bold" fill="#163E6E">Servidor de aplicação</text>
+  <text x="470" y="200" text-anchor="middle" font-size="14" fill="#344054">Python + FastAPI</text>
+  <rect x="362" y="216" width="216" height="30" rx="6" fill="#ffffff" stroke="#9DB7DA"/>
+  <text x="470" y="236" text-anchor="middle" font-size="13" fill="#344054">Rotas (API REST)</text>
+  <rect x="362" y="254" width="216" height="30" rx="6" fill="#ffffff" stroke="#9DB7DA"/>
+  <text x="470" y="274" text-anchor="middle" font-size="13" fill="#344054">Serviços (IQAr, IA, alertas)</text>
+  <rect x="362" y="292" width="216" height="30" rx="6" fill="#ffffff" stroke="#9DB7DA"/>
+  <text x="470" y="312" text-anchor="middle" font-size="13" fill="#344054">Repositórios</text>
+  <rect x="362" y="330" width="216" height="30" rx="6" fill="#ffffff" stroke="#9DB7DA"/>
+  <text x="470" y="350" text-anchor="middle" font-size="13" fill="#344054">Modelos (SQLAlchemy)</text>
+
+  <!-- PostgreSQL -->
+  <rect x="370" y="430" width="200" height="70" rx="14" fill="#FFF7E6" stroke="#B26B00" stroke-width="2"/>
+  <text x="470" y="460" text-anchor="middle" font-size="17" font-weight="bold" fill="#7A4100">PostgreSQL</text>
+  <text x="470" y="482" text-anchor="middle" font-size="13" fill="#667085">usuários, medições, alertas, conversas</text>
+
+  <!-- OpenAQ -->
+  <rect x="720" y="90" width="210" height="110" rx="14" fill="#F4F0FB" stroke="#6B3FA0" stroke-width="2"/>
+  <text x="825" y="128" text-anchor="middle" font-size="17" font-weight="bold" fill="#4A2A73">OpenAQ</text>
+  <text x="825" y="152" text-anchor="middle" font-size="13" fill="#344054">API REST externa</text>
+  <text x="825" y="174" text-anchor="middle" font-size="13" fill="#667085">estações e medições</text>
+
+  <!-- Gemini -->
+  <rect x="720" y="320" width="210" height="110" rx="14" fill="#FDF0F0" stroke="#B42318" stroke-width="2"/>
+  <text x="825" y="358" text-anchor="middle" font-size="17" font-weight="bold" fill="#7A1A12">Google Gemini</text>
+  <text x="825" y="382" text-anchor="middle" font-size="13" fill="#344054">API de IA externa</text>
+  <text x="825" y="404" text-anchor="middle" font-size="13" fill="#667085">textos e chat</text>
+
+  <!-- Ligações -->
+  <line x1="232" y1="260" x2="336" y2="260" stroke="#344054" stroke-width="2" marker-start="url(#seta)" marker-end="url(#seta)"/>
+  <text x="284" y="238" text-anchor="middle" font-size="12" fill="#344054">HTTP / REST</text>
+  <text x="284" y="284" text-anchor="middle" font-size="12" fill="#344054">JSON + JWT</text>
+
+  <line x1="470" y1="382" x2="470" y2="426" stroke="#344054" stroke-width="2" marker-start="url(#seta)" marker-end="url(#seta)"/>
+  <text x="482" y="410" font-size="12" fill="#344054">SQL</text>
+
+  <line x1="602" y1="210" x2="716" y2="155" stroke="#344054" stroke-width="2" marker-start="url(#seta)" marker-end="url(#seta)"/>
+  <text x="640" y="166" text-anchor="middle" font-size="12" fill="#344054">HTTPS</text>
+  <text x="640" y="182" text-anchor="middle" font-size="12" fill="#344054">X-API-Key</text>
+
+  <line x1="602" y1="310" x2="716" y2="365" stroke="#344054" stroke-width="2" marker-start="url(#seta)" marker-end="url(#seta)"/>
+  <text x="640" y="358" text-anchor="middle" font-size="12" fill="#344054">HTTPS</text>
+  <text x="640" y="374" text-anchor="middle" font-size="12" fill="#344054">chave da API</text>
+
+  <text x="30" y="40" font-size="20" font-weight="bold" fill="#101828">AirIA – arquitetura distribuída</text>
+  <text x="30" y="66" font-size="14" fill="#667085">O aplicativo fala só com o servidor; as chaves dos serviços externos ficam no servidor.</text>
+</svg>
