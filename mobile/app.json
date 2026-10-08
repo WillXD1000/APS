@@ -10,7 +10,9 @@
       "resizeMode": "contain",
       "backgroundColor": "#2E7D5B"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true
     },
@@ -19,6 +21,11 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": [
+      "expo-asset",
+      "expo-status-bar",
+      "expo-font"
+    ]
   }
 }
