@@ -102,6 +102,11 @@ def _indice_por_poluente(poluente: str, concentracao: float) -> int | None:
     return 500
 
 
+def categoria_por_indice(indice: int) -> str:
+    """Retorna a categoria textual para um índice (uso público)."""
+    return _categoria_por_indice(indice)
+
+
 def _categoria_por_indice(indice: int) -> str:
     """Retorna a categoria textual para um índice."""
     for limite, nome in CATEGORIAS:

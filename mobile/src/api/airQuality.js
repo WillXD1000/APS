@@ -13,3 +13,8 @@ export async function historico(limite = 50) {
   const { data } = await client.get("/history", { params: { limite } });
   return data; // MedicaoOut[]
 }
+
+export async function relatorio(dias = 7) {
+  const { data } = await client.get("/report", { params: { dias } });
+  return data; // RelatorioResponse
+}

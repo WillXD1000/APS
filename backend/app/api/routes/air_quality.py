@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from app.api.deps import get_usuario_atual
 from app.core.database import get_db
 from app.models.usuario import Usuario
-from app.schemas.medicao import MedicaoOut, QualidadeArResponse
+from app.schemas.medicao import MedicaoOut, QualidadeArResponse, RelatorioResponse
 from app.services.air_quality_service import AirQualityService, OpenAQError
 
 router = APIRouter(tags=["Qualidade do Ar"])
@@ -48,3 +48,13 @@ def historico(
     service = AirQualityService(db)
     medicoes = service.historico(usuario_id=usuario.id, limite=limite)
     return [MedicaoOut.model_validate(m) for m in medicoes]
+
+
+@router.get("/report", response_model=RelatorioResponse)
+def relatorio(
+    dias: int = Query(7, ge=1, le=31, description="Quantidade de dias"),
+    db: Session = Depends(get_db),
+    usuario: Usuario = Depends(get_usuario_atual),
+) -> RelatorioResponse:
+    """Relatório por dia (índice médio, máximo e total de consultas)."""
+    return AirQualityService(db).relatorio(usuario_id=usuario.id, dias=dias)

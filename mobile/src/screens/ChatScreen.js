@@ -1,11 +1,11 @@
 // Tela do chatbot ambiental.
 
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
+  Keyboard,
   KeyboardAvoidingView,
-  Platform,
   StyleSheet,
   Text,
   TextInput,
@@ -30,6 +30,14 @@ export default function ChatScreen() {
   const [texto, setTexto] = useState("");
   const [enviando, setEnviando] = useState(false);
   const listaRef = useRef(null);
+
+  // Ao abrir o teclado, rola até a última mensagem para ela não ficar escondida.
+  useEffect(() => {
+    const assinatura = Keyboard.addListener("keyboardDidShow", () => {
+      setTimeout(() => listaRef.current?.scrollToEnd({ animated: true }), 50);
+    });
+    return () => assinatura.remove();
+  }, []);
 
   async function enviar() {
     const pergunta = texto.trim();
@@ -76,8 +84,10 @@ export default function ChatScreen() {
   return (
     <KeyboardAvoidingView
       style={styles.container}
-      behavior={Platform.OS === "ios" ? "padding" : undefined}
-      keyboardVerticalOffset={90}
+      // "padding" também no Android: com o modo edge-to-edge (padrão desde o
+      // SDK 53) a janela não encolhe quando o teclado abre, então a própria
+      // tela precisa ganhar espaço embaixo para o campo de texto subir.
+      behavior="padding"
     >
       <FlatList
         ref={listaRef}
