@@ -6,7 +6,9 @@ import { StyleSheet, Text, View } from "react-native";
 
 import { COLORS, corDaCategoria } from "../config/theme";
 
-export default function AirQualityCard({ dados }) {
+// 'local' é o nome do lugar onde o usuário está (vem do GPS do celular).
+// A estação usada na medição aparece embaixo, como "Estação mais próxima".
+export default function AirQualityCard({ dados, local }) {
   if (!dados) return null;
 
   const cor = corDaCategoria(dados.categoria);
@@ -24,9 +26,11 @@ export default function AirQualityCard({ dados }) {
         <Text style={styles.badgeText}>{dados.categoria || "Sem dados"}</Text>
       </View>
 
-      <Text style={styles.cidade}>{dados.cidade || "Localização"}</Text>
-      {dados.estacao ? (
-        <Text style={styles.estacao}>Estação: {dados.estacao}</Text>
+      <Text style={styles.cidade}>{local || dados.cidade || "Sua localização"}</Text>
+      {dados.estacao || dados.cidade ? (
+        <Text style={styles.estacao}>
+          Estação mais próxima: {dados.estacao || dados.cidade}
+        </Text>
       ) : null}
 
       {/* Índice geral */}
