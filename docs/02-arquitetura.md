@@ -189,5 +189,6 @@ Gemini responde em linguagem natural → backend repassa ao app.
 - **Privacidade da localização:** o app arredonda latitude e longitude para 2 casas
   decimais (cerca de 1 km) antes de enviá-las ao backend. A estação é buscada num
   raio de 25 km, então o resultado não muda, e o histórico (`medicoes`) não guarda a
-  posição exata do usuário. O nome do lugar exibido na tela é calculado no próprio
-  aparelho.
+  posição exata do usuário. O nome do lugar exibido na tela vem do serviço de
+  geocodificação do sistema operacional do celular, que usa a posição precisa; essa
+  posição não é enviada ao backend.

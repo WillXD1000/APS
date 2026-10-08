@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 560" width="960" height="560" font-family="Arial, Helvetica, sans-serif">
+  <rect width="960" height="560" fill="#ffffff"/>
+  <text x="30" y="40" font-size="20" font-weight="bold" fill="#101828">AirIA – modelo de dados</text>
+  <text x="30" y="66" font-size="14" fill="#667085">Cada usuário tem várias medições, vários alertas e várias conversas (1 para N).</text>
+
+  <!-- usuarios -->
+  <rect x="40" y="170" width="260" height="210" rx="10" fill="#ffffff" stroke="#2E7D5B" stroke-width="2"/>
+  <rect x="40" y="170" width="260" height="38" rx="10" fill="#2E7D5B"/>
+  <rect x="40" y="196" width="260" height="12" fill="#2E7D5B"/>
+  <text x="170" y="195" text-anchor="middle" font-size="16" font-weight="bold" fill="#ffffff">usuarios</text>
+  <text x="56" y="236" font-size="13" fill="#101828"><tspan font-weight="bold">id</tspan> (PK)</text>
+  <text x="56" y="260" font-size="13" fill="#344054">nome</text>
+  <text x="56" y="284" font-size="13" fill="#344054">email (único)</text>
+  <text x="56" y="308" font-size="13" fill="#344054">senha_hash</text>
+  <text x="56" y="332" font-size="13" fill="#344054">perfil_saude</text>
+  <text x="56" y="356" font-size="13" fill="#344054">criado_em</text>
+
+  <!-- medicoes -->
+  <rect x="620" y="90" width="300" height="210" rx="10" fill="#ffffff" stroke="#1F5FA8" stroke-width="2"/>
+  <rect x="620" y="90" width="300" height="38" rx="10" fill="#1F5FA8"/>
+  <rect x="620" y="116" width="300" height="12" fill="#1F5FA8"/>
+  <text x="770" y="115" text-anchor="middle" font-size="16" font-weight="bold" fill="#ffffff">medicoes</text>
+  <text x="636" y="154" font-size="13" fill="#101828"><tspan font-weight="bold">id</tspan> (PK)</text>
+  <text x="636" y="178" font-size="13" fill="#101828">usuario_id (FK)</text>
+  <text x="636" y="202" font-size="13" fill="#344054">latitude, longitude, cidade</text>
+  <text x="636" y="226" font-size="13" fill="#344054">pm25, pm10, o3, no2, co</text>
+  <text x="636" y="250" font-size="13" fill="#344054">indice_geral, categoria</text>
+  <text x="636" y="274" font-size="13" fill="#344054">coletado_em</text>
+
+  <!-- alertas -->
+  <rect x="620" y="320" width="300" height="110" rx="10" fill="#ffffff" stroke="#B26B00" stroke-width="2"/>
+  <rect x="620" y="320" width="300" height="38" rx="10" fill="#B26B00"/>
+  <rect x="620" y="346" width="300" height="12" fill="#B26B00"/>
+  <text x="770" y="345" text-anchor="middle" font-size="16" font-weight="bold" fill="#ffffff">alertas</text>
+  <text x="636" y="382" font-size="13" fill="#101828"><tspan font-weight="bold">id</tspan> (PK), usuario_id (FK)</text>
+  <text x="636" y="406" font-size="13" fill="#344054">mensagem, nivel, enviado_em</text>
+
+  <!-- conversas -->
+  <rect x="620" y="450" width="300" height="90" rx="10" fill="#ffffff" stroke="#6B3FA0" stroke-width="2"/>
+  <rect x="620" y="450" width="300" height="38" rx="10" fill="#6B3FA0"/>
+  <rect x="620" y="476" width="300" height="12" fill="#6B3FA0"/>
+  <text x="770" y="475" text-anchor="middle" font-size="16" font-weight="bold" fill="#ffffff">conversas</text>
+  <text x="636" y="512" font-size="13" fill="#101828"><tspan font-weight="bold">id</tspan> (PK), usuario_id (FK)</text>
+  <text x="636" y="532" font-size="13" fill="#344054">pergunta, resposta, criado_em</text>
+
+  <!-- relações -->
+  <g stroke="#344054" stroke-width="2" fill="none">
+    <path d="M300 250 L460 250 L460 190 L618 190"/>
+    <path d="M300 290 L460 290 L460 390 L618 390"/>
+    <path d="M300 330 L440 330 L440 515 L618 515"/>
+  </g>
+  <g font-size="14" font-weight="bold" fill="#344054">
+    <text x="310" y="244">1</text><text x="600" y="184">N</text>
+    <text x="310" y="284">1</text><text x="600" y="384">N</text>
+    <text x="310" y="324">1</text><text x="600" y="509">N</text>
+  </g>
+</svg>

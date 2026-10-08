@@ -67,15 +67,19 @@ O projeto demonstra conceitos de Sistemas Distribuídos:
 | [`docs/03-plano-desenvolvimento.md`](docs/03-plano-desenvolvimento.md) | Plano de desenvolvimento em etapas |
 | [`backend/README.md`](backend/README.md) | Como rodar o backend |
 | [`mobile/README.md`](mobile/README.md) | Como rodar o app mobile |
+| [`docs/trabalho/`](docs/trabalho/) | Trabalho escrito da APS (texto, diagramas e gerador do `.docx`) |
 
 ---
 
 ## 👥 Equipe
 
-| Nome | RA | Função |
-|---|---|---|
-| _(preencher)_ | | |
-| _(preencher)_ | | |
+| Nome | RA |
+|---|---|
+| Gustavo Teixeira de Lima | G873270 |
+| Northon Dias Conceição | R022FD7 |
+| Willyam Oliveira de Lima | R022FF3 |
+
+Ciência da Computação – 7º semestre – UNIP, campus Paulista. Professora: Jacqueline Reis.
 
 ---
 
