@@ -6,15 +6,62 @@ Responsável por:
     - responder perguntas do chatbot ambiental.
 
 Projetado para degradar com elegância: se a chave não estiver configurada ou
-a API falhar, cai em respostas locais (fallback) para não quebrar o fluxo.
+a API falhar, cai em respostas locais (fallback) para não quebrar o fluxo. O
+motivo da falha é registrado no terminal do backend e usado na mensagem do chat.
+
+Para economizar a cota gratuita, a interpretação de cada combinação de local,
+categoria e perfil é reaproveitada por CACHE_INTERPRETACAO_SEGUNDOS.
 
 Documentação do SDK: https://github.com/googleapis/python-genai
 """
 
+import logging
+import threading
+import time
+
 from app.core.config import settings
 
-# Modelo gratuito (free tier), bom equilíbrio entre qualidade e custo.
-GEMINI_MODEL = "gemini-2.5-flash"
+logger = logging.getLogger("airia.gemini")
+
+# Tempo de reaproveitamento de uma interpretação já gerada (30 minutos).
+CACHE_INTERPRETACAO_SEGUNDOS = 30 * 60
+
+# Cache em memória, compartilhado entre as requisições deste processo.
+_cache_interpretacao: dict[tuple, tuple[float, tuple[str, str]]] = {}
+_cache_lock = threading.Lock()
+
+# Mensagens do chat conforme o motivo da falha.
+MENSAGENS_FALHA_CHAT = {
+    "cota": (
+        "O limite gratuito de uso da IA foi atingido por hoje. "
+        "Tente novamente mais tarde."
+    ),
+    "modelo": (
+        "O modelo de IA configurado não está disponível. "
+        "Verifique o GEMINI_MODEL no backend."
+    ),
+    "chave": (
+        "A chave do Gemini é inválida ou não tem permissão. "
+        "Verifique o GEMINI_API_KEY no backend."
+    ),
+    "outro": (
+        "Não consegui responder agora devido a uma instabilidade no serviço "
+        "de IA. Tente novamente em instantes."
+    ),
+}
+
+
+def classificar_erro(erro: Exception) -> str:
+    """Traduz o erro da API em um motivo: cota, modelo, chave ou outro."""
+    codigo = getattr(erro, "code", None)
+    if codigo == 429:
+        return "cota"
+    if codigo == 404:
+        return "modelo"
+    # Chave inválida costuma vir como 400 ("API key not valid"); sem permissão, 401/403.
+    if codigo in (401, 403) or (codigo == 400 and "API key" in str(erro)):
+        return "chave"
+    return "outro"
 
 # Descrições amigáveis de cada perfil de saúde para enriquecer o prompt.
 PERFIS_DESCRICAO = {
@@ -52,7 +99,9 @@ class GeminiService:
 
     def __init__(self) -> None:
         self.api_key = settings.gemini_api_key
+        self.modelo = settings.gemini_model
         self._client = None  # inicializado sob demanda (lazy)
+        self.ultimo_erro: str | None = None  # motivo da última falha
 
     @property
     def disponivel(self) -> bool:
@@ -72,18 +121,26 @@ class GeminiService:
 
     def _gerar(self, prompt: str) -> str | None:
         """Chama o Gemini e retorna o texto, ou None em caso de falha."""
+        self.ultimo_erro = None
         if not self.disponivel:
             return None
         try:
             client = self._get_client()
             resposta = client.models.generate_content(
-                model=GEMINI_MODEL,
+                model=self.modelo,
                 contents=prompt,
             )
             texto = (resposta.text or "").strip()
             return texto or None
-        except Exception:
-            # Qualquer falha (rede, cota, chave inválida) cai no fallback.
+        except Exception as erro:
+            # Qualquer falha cai no fallback, mas o motivo fica registrado.
+            self.ultimo_erro = classificar_erro(erro)
+            logger.warning(
+                "Falha ao chamar o Gemini (modelo=%s, motivo=%s): %s",
+                self.modelo,
+                self.ultimo_erro,
+                str(erro)[:300],
+            )
             return None
 
     # ------------------------------------------------------------------ #
@@ -123,10 +180,23 @@ class GeminiService:
             "perfil>"
         )
 
+        # Reaproveita uma interpretação recente para economizar a cota.
+        chave_cache = (local, categoria, perfil_saude)
+        agora = time.monotonic()
+        with _cache_lock:
+            em_cache = _cache_interpretacao.get(chave_cache)
+        if em_cache and em_cache[0] > agora:
+            return em_cache[1]
+
         texto = self._gerar(prompt)
         if texto:
             interpretacao, recomendacao = self._separar_partes(texto)
             if interpretacao and recomendacao:
+                with _cache_lock:
+                    _cache_interpretacao[chave_cache] = (
+                        agora + CACHE_INTERPRETACAO_SEGUNDOS,
+                        (interpretacao, recomendacao),
+                    )
                 return interpretacao, recomendacao
 
         # Fallback local.
@@ -197,7 +267,6 @@ class GeminiService:
                 "O assistente de IA não está configurado no momento. "
                 "Configure a chave do Gemini para usar o chat."
             )
-        return (
-            "Não consegui responder agora devido a uma instabilidade no serviço "
-            "de IA. Tente novamente em instantes."
+        return MENSAGENS_FALHA_CHAT.get(
+            self.ultimo_erro or "outro", MENSAGENS_FALHA_CHAT["outro"]
         )

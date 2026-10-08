@@ -23,6 +23,8 @@ class Settings(BaseSettings):
 
     # Serviços externos (usados nas próximas etapas)
     gemini_api_key: str = ""
+    # Cada modelo tem a sua própria cota gratuita diária.
+    gemini_model: str = "gemini-3.5-flash-lite"
     openaq_api_key: str = ""
 
     model_config = SettingsConfigDict(
