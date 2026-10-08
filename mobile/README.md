@@ -52,12 +52,26 @@ uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 
 ### 4. Iniciar o app
 
-```bash
-npm start
+**No Windows (PowerShell):**
+
+```powershell
+$env:NODE_OPTIONS="--no-experimental-strip-types"
+npx expo start --clear
 ```
 
-Vai aparecer um **QR Code** no terminal. Abra o app **Expo Go** no celular e
-escaneie o QR Code (o celular e o PC precisam estar na **mesma rede Wi-Fi**).
+**No Linux / macOS:**
+
+```bash
+NODE_OPTIONS=--no-experimental-strip-types npx expo start --clear
+```
+
+> ⚠️ A flag `--no-experimental-strip-types` é necessária no **Node.js 22.18+**.
+> Sem ela, o Node tenta compilar arquivos TypeScript de dentro do `node_modules`
+> e o Expo falha com `ERR_UNSUPPORTED_NODE_MODULES_TYPE_STRIPPING`. A flag apenas
+> desliga esse recurso experimental do Node — o app funciona normalmente.
+
+Vai aparecer um **QR Code** no terminal. Abra o app **Expo Go** (SDK 54) no celular
+e escaneie o QR Code (o celular e o PC precisam estar na **mesma rede Wi-Fi**).
 
 ---
 
