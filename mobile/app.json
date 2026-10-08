@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "airia-novo",
-    "slug": "airia-novo",
+    "name": "AirIA",
+    "slug": "airia-mobile",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -10,6 +10,7 @@
       "supportsTablet": true
     },
     "android": {
+      "package": "com.airia.mobile",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/android-icon-foreground.png",

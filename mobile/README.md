@@ -1,6 +1,6 @@
 # 📱 Mobile — AirIA
 
-Aplicativo móvel do AirIA, construído com **React Native (Expo)**.
+Aplicativo móvel do AirIA, construído com **React Native (Expo SDK 57)**.
 
 > **Etapa 4:** app com login/cadastro, consulta de qualidade do ar (cidade fixa),
 > interpretação da IA, chatbot ambiental, histórico e perfil.
@@ -9,10 +9,10 @@ Aplicativo móvel do AirIA, construído com **React Native (Expo)**.
 
 ## 📋 Pré-requisitos
 
-- **Node.js 18+** (já instalado)
-- **Expo** (instalado via `npx`, não precisa instalar global)
+- **Node.js 22.13+**
+- **Expo** (usado via `npx`, não precisa instalar global)
 - O **backend rodando** e acessível pela rede (veja `../backend/README.md`)
-- Um **celular** com o app **Expo Go** (Android/iOS) **ou** um emulador
+- Um **celular** com o app **Expo Go** da loja (Android/iOS), que roda o SDK 57, **ou** um emulador
 
 ---
 
@@ -52,26 +52,17 @@ uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 
 ### 4. Iniciar o app
 
-**No Windows (PowerShell):**
+Em um terminal **separado** do backend (sem o `.venv` do Python ativo):
 
-```powershell
-$env:NODE_OPTIONS="--no-experimental-strip-types"
+```bash
 npx expo start --clear
 ```
 
-**No Linux / macOS:**
-
-```bash
-NODE_OPTIONS=--no-experimental-strip-types npx expo start --clear
-```
-
-> ⚠️ A flag `--no-experimental-strip-types` é necessária no **Node.js 22.18+**.
-> Sem ela, o Node tenta compilar arquivos TypeScript de dentro do `node_modules`
-> e o Expo falha com `ERR_UNSUPPORTED_NODE_MODULES_TYPE_STRIPPING`. A flag apenas
-> desliga esse recurso experimental do Node — o app funciona normalmente.
-
-Vai aparecer um **QR Code** no terminal. Abra o app **Expo Go** (SDK 54) no celular
+Vai aparecer um **QR Code** no terminal. Abra o app **Expo Go** no celular
 e escaneie o QR Code (o celular e o PC precisam estar na **mesma rede Wi-Fi**).
+
+> 💡 Para adicionar pacotes, use sempre `npx expo install <pacote>` em vez de
+> `npm install <pacote>`: ele escolhe a versão compatível com o SDK do projeto.
 
 ---
 
@@ -92,8 +83,10 @@ Antes de logar: telas de **Login** e **Cadastro**.
 
 ```
 mobile/
+├── index.js                # ponto de entrada (registra o App)
 ├── App.js                  # raiz (providers + navegação)
 ├── app.json                # config do Expo
+├── assets/                 # ícones e favicon
 ├── src/
 │   ├── api/                # chamadas ao backend (axios)
 │   ├── components/         # AirQualityCard, CitySelector
@@ -115,6 +108,8 @@ mobile/
 | Login falha com 401 | Credenciais erradas | Cadastre-se novamente ou revise e-mail/senha |
 | `/air-quality` dá erro | Backend sem `OPENAQ_API_KEY` | Configure a chave no `.env` do backend |
 | Respostas da IA genéricas | Backend sem `GEMINI_API_KEY` | Configure a chave do Gemini no backend (opcional) |
+| "Project is incompatible with this version of Expo Go" | Expo Go com SDK diferente do projeto (57) | Atualize o Expo Go pela loja |
+| Erros de dependência ao iniciar | Pacote com versão incompatível com o SDK | Rode `npx expo install --fix` e depois `npx expo-doctor` |
 
 ---
 
