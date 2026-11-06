@@ -85,7 +85,7 @@ Ciência da Computação – 7º semestre – UNIP, campus Paulista. Professora:
 
 ## 📅 Status
 
-🟢 **Em desenvolvimento** — backend completo (auth, OpenAQ, Gemini) e app mobile (login, consulta, chatbot, histórico, perfil).
+🟢 **Concluido** — backend completo (auth, OpenAQ, Gemini) e app mobile (login, consulta, chatbot, histórico, perfil).
 
 ### Progresso
 - ✅ Etapa 1 — Backend base (autenticação JWT)
